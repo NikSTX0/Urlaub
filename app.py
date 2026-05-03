@@ -8,6 +8,7 @@ import glob
 st.set_page_config(page_title="Travel Destinations RAG", page_icon="✈️", layout="wide")
 
 @st.cache_resource(show_spinner="Loading documents...")
+@st.cache_resource(show_spinner="Loading documents...")
 def load_vectorstore():
     files = glob.glob("documents/*.txt")
     documents = []
@@ -28,7 +29,16 @@ def load_vectorstore():
     embeddings = HuggingFaceEmbeddings(
         model_name="all-MiniLM-L6-v2",
         model_kwargs={"device": "cpu"},
-        encode_kwargs={"normalize_embeddings": True})
+        encode_kwargs={"normalize_embeddings": True},
+        cache_folder="/tmp/hf_cache"
+    )
+    vectorstore = Chroma.from_texts(
+        chunks, 
+        embeddings, 
+        metadatas=chunk_metas,
+        persist_directory="/tmp/chroma_db"
+    )
+    return vectorstore
     
     vectorstore = Chroma.from_texts(chunks, embeddings, metadatas=chunk_metas)
     return vectorstore
