@@ -1,0 +1,8 @@
+cat > requirements.txt << 'EOF'
+streamlit
+langchain
+langchain-community
+chromadb
+sentence-transformers
+tiktoken
+EOF

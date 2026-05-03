@@ -1,0 +1,7 @@
+cat > .gitignore << 'EOF'
+mla/
+__pycache__/
+*.pyc
+.env
+chroma_db/
+EOF
