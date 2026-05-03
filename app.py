@@ -25,7 +25,7 @@ def load_vectorstore():
         documents.append(text)
         metadatas.append({"source": filename})
     
-    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=25)
     chunks = []
     chunk_metas = []
     for doc, meta in zip(documents, metadatas):
@@ -46,15 +46,7 @@ if page == "🏠 Home":
     st.title("✈️ Travel Destinations Explorer")
     st.markdown("### Welcome to the AI-powered travel search engine!")
     st.markdown("""
-    This app uses **Retrieval-Augmented Generation (RAG)** to help you find information
-    about travel destinations from a curated collection of travel blog articles.
-    
-    **How it works:**
-    1. Travel blog articles are split into small chunks
-    2. Each chunk is converted into a semantic embedding vector
-    3. When you search, your query is matched against the most relevant chunks
-    4. The most relevant travel information is returned to you
-    """)
+
     st.markdown("---")
     st.markdown("### 🌍 Destinations in this database:")
     cols = st.columns(3)
