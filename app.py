@@ -25,7 +25,11 @@ def load_vectorstore():
         splits = splitter.split_text(doc)
         chunks.extend(splits)
         chunk_metas.extend([meta] * len(splits))
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+        model_kwargs={"device": "cpu"},
+        encode_kwargs={"normalize_embeddings": True})
+    
     vectorstore = Chroma.from_texts(chunks, embeddings, metadatas=chunk_metas)
     return vectorstore
 
