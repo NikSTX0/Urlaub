@@ -27,7 +27,7 @@ def load_vectorstore():
         chunks.extend(splits)
         chunk_metas.extend([meta] * len(splits))
     embeddings = HuggingFaceEmbeddings(
-        model_name="all-MiniLM-L6-v2",
+        model_name="paraphrase-MiniLM-L3-v2",,
         model_kwargs={"device": "cpu"},
         encode_kwargs={"normalize_embeddings": True},
         cache_folder="/tmp/hf_cache"
