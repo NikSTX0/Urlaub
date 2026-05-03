@@ -1,8 +1,8 @@
-cat > requirements.txt << 'EOF'
 streamlit
 langchain
+langchain-text-splitters
+langchain-huggingface
+langchain-chroma
 langchain-community
 chromadb
 sentence-transformers
-tiktoken
-EOF
