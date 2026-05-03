@@ -1,13 +1,21 @@
 import streamlit as st
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
+from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+from langchain.embeddings.base import Embeddings
 import os
 import glob
 
 st.set_page_config(page_title="Travel Destinations RAG", page_icon="✈️", layout="wide")
 
-@st.cache_resource(show_spinner="Loading documents...")
+class ChromaDefaultEmbeddings(Embeddings):
+    def __init__(self):
+        self.ef = DefaultEmbeddingFunction()
+    def embed_documents(self, texts):
+        return self.ef(texts)
+    def embed_query(self, text):
+        return self.ef([text])[0]
+
 @st.cache_resource(show_spinner="Loading documents...")
 def load_vectorstore():
     files = glob.glob("documents/*.txt")
@@ -26,20 +34,7 @@ def load_vectorstore():
         splits = splitter.split_text(doc)
         chunks.extend(splits)
         chunk_metas.extend([meta] * len(splits))
-    embeddings = HuggingFaceEmbeddings(
-        model_name="paraphrase-MiniLM-L3-v2",,
-        model_kwargs={"device": "cpu"},
-        encode_kwargs={"normalize_embeddings": True},
-        cache_folder="/tmp/hf_cache"
-    )
-    vectorstore = Chroma.from_texts(
-        chunks, 
-        embeddings, 
-        metadatas=chunk_metas,
-        persist_directory="/tmp/chroma_db"
-    )
-    return vectorstore
-    
+    embeddings = ChromaDefaultEmbeddings()
     vectorstore = Chroma.from_texts(chunks, embeddings, metadatas=chunk_metas)
     return vectorstore
 
@@ -51,7 +46,7 @@ vectorstore = load_vectorstore()
 if page == "Home":
     st.title("Travel Destinations Explorer")
     st.markdown("Welcome to the AI-powered travel search engine!")
-    st.markdown("This app uses RAG to help you find information about travel destinations from travel blog articles.")
+    st.markdown("This app uses RAG to find information from travel blog articles.")
     st.markdown("**How it works:**")
     st.markdown("1. Travel blog articles are split into small chunks")
     st.markdown("2. Each chunk is converted into a semantic embedding vector")
@@ -61,18 +56,11 @@ if page == "Home":
     st.markdown("### Destinations in this database:")
     cols = st.columns(3)
     destinations = [
-        ("Indonesia", "Buton, Indonesia"),
-        ("Egypt", "Egypt"),
-        ("Jordan", "Jordan"),
-        ("Oman", "Oman"),
-        ("New Zealand", "New Zealand"),
-        ("Palau", "Palau"),
-        ("India", "India"),
-        ("Spain", "Spain"),
-        ("China", "Zhangjiajie, China"),
-        ("Iceland", "Iceland"),
+        "Buton, Indonesia", "Egypt", "Jordan",
+        "Oman", "New Zealand", "Palau",
+        "India", "Spain", "Zhangjiajie, China", "Iceland"
     ]
-    for i, (_, name) in enumerate(destinations):
+    for i, name in enumerate(destinations):
         with cols[i % 3]:
             st.markdown(f"**{name}**")
     st.markdown("---")
@@ -80,7 +68,6 @@ if page == "Home":
 
 elif page == "Search":
     st.title("Search Travel Destinations")
-    st.markdown("Ask anything about the destinations in our database!")
     query = st.text_input("What do you want to know?", placeholder="e.g. Where can I go diving?")
     num_results = st.slider("Number of results", min_value=1, max_value=6, value=3)
     if query:
@@ -94,6 +81,10 @@ elif page == "Search":
     else:
         st.markdown("### Example searches:")
         st.markdown("- Where can I go scuba diving?")
+        st.markdown("- Which destination is best for budget travelers?")
+        st.markdown("- Where can I see ancient ruins?")
+        st.markdown("- What is the best time to visit Iceland?")
+        st.markdown("- Which places are safe for solo travelers?")
         st.markdown("- Which destination is best for budget travelers?")
         st.markdown("- Where can I see ancient ruins?")
         st.markdown("- What is the best time to visit Iceland?")
